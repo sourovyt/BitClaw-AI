@@ -5,7 +5,7 @@ from threading import Thread
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # Production Grade Logging
 logging.basicConfig(
@@ -35,24 +35,20 @@ def launch_health_gateway():
 # ------------------------------------------------------
 
 def extract_market_telemetry() -> dict:
-    """Perception Layer: Actively requests and compiles remote API responses"""
     http_session = requests.Session()
     http_session.headers.update({"Accept": "application/json", "User-Agent": "BitClawEngine/1.0"})
     
     try:
-        # Ingesting General Market Metrics
         intel_res = http_session.get(MARKET_INTEL_API, timeout=8).json()
         spot_price = intel_res[0]['current_price']
         price_delta_24h = intel_res[0]['price_change_percentage_24h']
         
-        # Ingesting Bitget Orderbook Dynamics
         bitget_res = http_session.get(BITGET_TICKER_API, timeout=8).json()
         bitget_payload = bitget_res.get('data', [{}])[0]
         futures_volume = float(bitget_payload.get('volume24h', 0))
         high_24h = float(bitget_payload.get('high24h', 0))
         low_24h = float(bitget_payload.get('low24h', 0))
         
-        # Dynamic Bias Engine
         calculated_bias = "STRONG_BULLISH" if price_delta_24h > 1.5 else ("BULLISH" if price_delta_24h > 0 else "BEARISH")
         
         return {
@@ -74,7 +70,7 @@ def generate_secure_ui() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🧠 Evaluate & Route Order (Sandbox)", callback_data='stream_decision')]
     ])
 
-def command_start(update: Update, context: CallbackContext) -> None:
+async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     client_name = update.effective_user.first_name
     welcome_payload = (
         f"🦅 **BitClaw Autopilot System Active**\n"
@@ -84,16 +80,15 @@ def command_start(update: Update, context: CallbackContext) -> None:
         "• Core Engine: `Alibaba Qwen LLM Intercept Active`\n\n"
         "Use the core cluster controls below to monitor or trade:"
     )
-    update.message.reply_text(welcome_payload, reply_markup=generate_secure_ui(), parse_mode='Markdown')
+    await update.message.reply_text(welcome_payload, reply_markup=generate_secure_ui(), parse_mode='Markdown')
 
-def callback_router(update: Update, context: CallbackContext) -> None:
+async def callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    query.answer()
+    await query.answer()
     
-    # Live Pipeline Execution
     telemetry = extract_market_telemetry()
     if not telemetry.get("success"):
-        query.edit_message_text(
+        await query.edit_message_text(
             text="⚠️ `System Error: Unable to bind to remote API buffers. Session connection timed out.`",
             reply_markup=generate_secure_ui(),
             parse_mode='Markdown'
@@ -115,7 +110,6 @@ def callback_router(update: Update, context: CallbackContext) -> None:
             f"⚡ _Stream Metadata: Stable | Latency checked | {current_time_utc}_"
         )
     elif query.data == 'stream_decision':
-        # Execution Engine
         if "BULLISH" in telemetry['bias']:
             trade_signal = "BUY_LONG 🟢 [ORDER_QUEUED]"
             risk_sl, risk_tp = "-2.00%", "+6.00%"
@@ -133,7 +127,7 @@ def callback_router(update: Update, context: CallbackContext) -> None:
             "📥 _Transaction logged securely on paper sandbox._"
         )
 
-    query.edit_message_text(text=terminal_output, reply_markup=generate_secure_ui(), parse_mode='Markdown')
+    await query.edit_message_text(text=terminal_output, reply_markup=generate_secure_ui(), parse_mode='Markdown')
 
 def main() -> None:
     if TELEGRAM_TOKEN == "YOUR_TELEGRAM_BOT_TOKEN_HERE" or not TELEGRAM_TOKEN:
@@ -143,16 +137,14 @@ def main() -> None:
     # Start Render compliance HTTP thread
     Thread(target=launch_health_gateway, daemon=True).start()
 
-    # Launch Bot polling framework
-    bot_updater = Updater(TELEGRAM_TOKEN, use_context=True)
-    bot_dispatcher = bot_updater.dispatcher
+    # Launch Modern Async Bot Application (v20+)
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
     
-    bot_dispatcher.add_handler(CommandHandler("start", command_start))
-    bot_dispatcher.add_handler(CallbackQueryHandler(callback_router))
+    application.add_handler(CommandHandler("start", command_start))
+    application.add_handler(CallbackQueryHandler(callback_router))
 
-    logger.info("BitClaw Trading Infrastructure Deployment Complete.")
-    bot_updater.start_polling()
-    bot_updater.idle()
+    logger.info("BitClaw Trading Infrastructure Deployment Complete via Modern Pipeline.")
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
