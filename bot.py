@@ -8,18 +8,28 @@ from handlers.start import router as start_router
 from handlers.playbook import router as playbook_router
 
 
-dp = Dispatcher()
-
-dp.include_router(start_router)
-dp.include_router(playbook_router)
-
-
 async def main():
-    bot = Bot(token=BOT_TOKEN)
 
-    print("BitClaw AI Running...")
+    # Check token safely
+    if not BOT_TOKEN:
+        print("BOT_TOKEN missing")
+        return
 
-    await dp.start_polling(bot)
+    try:
+        bot = Bot(token=BOT_TOKEN)
+        dp = Dispatcher()
+
+        # Register handlers
+        dp.include_router(start_router)
+        dp.include_router(playbook_router)
+
+        print("BitClaw AI Bot Started")
+
+        await dp.start_polling(bot)
+
+    except Exception:
+        # Silent fail (no crash spam)
+        print("Bot failed to start")
 
 
 if __name__ == "__main__":
