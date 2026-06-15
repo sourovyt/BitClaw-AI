@@ -5,32 +5,33 @@ from services.gemini import generate_text
 
 router = Router()
 
-
+# button click
 @router.callback_query(lambda c: c.data == "playbook")
 async def playbook_button(call: CallbackQuery):
-    await call.message.answer("⚡ Send your trading style (example: breakout, scalping, swing)")
+    await call.message.answer("Send your trading style (example: breakout, scalping)")
+
+    await call.answer()
 
 
-
+# ONLY SAFE VERSION (no conflict)
 @router.message()
-async def handle_playbook(message: Message):
+async def handle_text(message: Message):
 
-    text = message.text
+    if not message.text:
+        return
 
     prompt = f"""
-You are a professional crypto trading strategist.
+You are a crypto trading expert.
 
-User trading style: {text}
+User style: {message.text}
 
-Generate a structured trading playbook:
-
-1. Strategy name
-2. Entry rules
-3. Exit rules
-4. Risk management
-5. Best market condition
+Create structured playbook:
+- Strategy name
+- Entry rules
+- Exit rules
+- Risk management
 """
 
     result = await generate_text(prompt)
 
-    await message.answer(f"⚡ AI Playbook:\n\n{result}")
+    await message.answer(result)
