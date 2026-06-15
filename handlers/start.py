@@ -5,25 +5,16 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 router = Router()
 
-
 @router.message(Command("start"))
 async def start_cmd(message: Message):
 
     kb = InlineKeyboardBuilder()
 
-    kb.button(text="📸 Analyze Chart", callback_data="chart")
-    kb.button(text="📊 Market Scan", callback_data="scan")
-
     kb.button(text="⚡ AI Playbook", callback_data="playbook")
-    kb.button(text="🛡 Risk Manager", callback_data="risk")
 
-    kb.button(text="🔍 Trade Review", callback_data="review")
-    kb.button(text="📰 Market Intel", callback_data="intel")
-
-    kb.adjust(2)
+    kb.adjust(1)
 
     await message.answer(
-        "🦾 Welcome to BitClaw AI\n\n"
-        "Your AI-Powered Crypto Trading Agent",
+        "🦾 BitClaw AI Ready\n\nChoose an option:",
         reply_markup=kb.as_markup()
     )
