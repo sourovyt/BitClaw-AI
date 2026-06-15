@@ -4,32 +4,25 @@ from aiogram import Bot, Dispatcher
 
 from config import BOT_TOKEN
 
-from handlers.start import router as start_router
-from handlers.playbook import router as playbook_router
+import handlers.start as start_module
+import handlers.playbook as playbook_module
 
 
 async def main():
 
-    # Check token safely
     if not BOT_TOKEN:
         print("BOT_TOKEN missing")
         return
 
-    try:
-        bot = Bot(token=BOT_TOKEN)
-        dp = Dispatcher()
+    bot = Bot(token=BOT_TOKEN)
+    dp = Dispatcher()
 
-        # Register handlers
-        dp.include_router(start_router)
-        dp.include_router(playbook_router)
+    dp.include_router(start_module.router)
+    dp.include_router(playbook_module.router)
 
-        print("BitClaw AI Bot Started")
+    print("Bot running...")
 
-        await dp.start_polling(bot)
-
-    except Exception:
-        # Silent fail (no crash spam)
-        print("Bot failed to start")
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
