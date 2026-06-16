@@ -11,6 +11,7 @@ from config import BOT_TOKEN
 
 from start import router as start_router
 from risk import router as risk_router
+from review import router as review_router
 from playbook import router as playbook_router
 
 
@@ -34,6 +35,7 @@ async def run_bot():
 
     dp.include_router(start_router)
     dp.include_router(risk_router)
+    dp.include_router(review_router)
     dp.include_router(playbook_router)
 
     print("🦾 BitClaw AI running...")
@@ -55,8 +57,7 @@ def start_web():
 if __name__ == "__main__":
 
     threading.Thread(
-        target=start_web,
-        daemon=True
+        target=start_web, daemon=True
     ).start()
 
     asyncio.run(run_bot())
