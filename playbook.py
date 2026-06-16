@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.types import Message
+
 from gemini import generate_text
 
 router = Router()
@@ -16,7 +17,7 @@ async def playbook_handler(message: Message):
         prompt = f"""
 You are an expert crypto trading strategist.
 
-Create a concise professional trading playbook for:
+Create a professional crypto trading playbook for:
 
 {message.text}
 
@@ -25,22 +26,21 @@ Format:
 🚀 Strategy Name
 
 🎯 Entry Rules
-- Rule 1
-- Rule 2
+- Bullet points
 
 💰 Exit Rules
-- Rule 1
-- Rule 2
+- Bullet points
 
 🛡 Risk Management
-- Risk rule 1
-- Risk rule 2
+- Bullet points
 
 ⚠ Common Mistakes
-- Mistake 1
-- Mistake 2
+- Bullet points
 
-Keep the response under 3000 characters.
+📈 Market Conditions
+- When this strategy works best
+
+Keep the response concise and under 2500 characters.
 """
 
         response = await generate_text(prompt)
@@ -51,4 +51,6 @@ Keep the response under 3000 characters.
         await loading.edit_text(response)
 
     except Exception as e:
-        await message.answer(f"❌ Error: {str(e)}")
+        await message.answer(
+            f"❌ Error: {str(e)}"
+        )
