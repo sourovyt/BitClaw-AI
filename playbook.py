@@ -9,6 +9,10 @@ router = Router()
 async def playbook_handler(message: Message):
     try:
 
+        loading = await message.answer(
+            "🦾 BitClaw AI is analyzing your strategy..."
+        )
+
         prompt = f"""
 You are an expert crypto trading strategist.
 
@@ -44,7 +48,7 @@ Keep the response under 3000 characters.
         if len(response) > 3900:
             response = response[:3900] + "\n\n...truncated"
 
-        await message.answer(response)
+        await loading.edit_text(response)
 
     except Exception as e:
         await message.answer(f"❌ Error: {str(e)}")
