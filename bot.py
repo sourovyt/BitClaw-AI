@@ -4,8 +4,8 @@ from aiogram import Bot, Dispatcher
 
 from config import BOT_TOKEN
 
-import handlers.start as start_module
-import handlers.playbook as playbook_module
+from start import router as start_router
+from playbook import router as playbook_router
 
 
 async def main():
@@ -17,10 +17,10 @@ async def main():
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
 
-    dp.include_router(start_module.router)
-    dp.include_router(playbook_module.router)
+    dp.include_router(start_router)
+    dp.include_router(playbook_router)
 
-    print("Bot running...")
+    print("BitClaw AI running...")
 
     await dp.start_polling(bot)
 
