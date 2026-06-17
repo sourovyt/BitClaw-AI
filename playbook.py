@@ -1,56 +1,36 @@
-from aiogram import Router
-from aiogram.types import Message
+prompt = f"""
+You are a professional crypto trading strategist.
 
-from gemini import generate_text
-
-router = Router()
-
-
-@router.message()
-async def playbook_handler(message: Message):
-    try:
-
-        loading = await message.answer(
-            "🦾 BitClaw AI is analyzing your strategy..."
-        )
-
-        prompt = f"""
-You are an expert crypto trading strategist.
-
-Create a professional crypto trading playbook for:
+Create a trading playbook for:
 
 {message.text}
 
-Format:
+Rules:
+
+- Use short bullet points
+- No long paragraphs
+- Keep response under 1000 characters
+- Use only the format below
 
 🚀 Strategy Name
 
 🎯 Entry Rules
-- Bullet points
+• point
+• point
 
 💰 Exit Rules
-- Bullet points
+• point
+• point
 
 🛡 Risk Management
-- Bullet points
+• point
+• point
 
 ⚠ Common Mistakes
-- Bullet points
+• point
+• point
 
-📈 Market Conditions
-- When this strategy works best
-
-Keep the response concise and under 2500 characters.
+📈 Best Market Conditions
+• point
+• point
 """
-
-        response = await generate_text(prompt)
-
-        if len(response) > 3900:
-            response = response[:3900] + "\n\n...truncated"
-
-        await loading.edit_text(response)
-
-    except Exception as e:
-        await message.answer(
-            f"❌ Error: {str(e)}"
-        )
