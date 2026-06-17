@@ -1,21 +1,29 @@
 from aiogram import Router
-from aiogram.types import Message, CallbackQuery
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 router = Router()
+
+menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🚀 Playbook"),
+            KeyboardButton(text="🛡 Risk")
+        ],
+        [
+            KeyboardButton(text="📊 Review"),
+            KeyboardButton(text="📈 Chart")
+        ],
+        [
+            KeyboardButton(text="ℹ️ Help")
+        ]
+    ],
+    resize_keyboard=True,
+    is_persistent=True
+)
 
 
 @router.message(lambda message: message.text == "/start")
 async def start_command(message: Message):
-
-    kb = InlineKeyboardBuilder()
-
-    kb.button(text="🚀 AI Playbook", callback_data="playbook")
-    kb.button(text="🛡 Risk Manager", callback_data="risk")
-    kb.button(text="📊 Trade Review", callback_data="review")
-    kb.button(text="📈 Chart Analysis", callback_data="chart")
-
-    kb.adjust(1)
 
     await message.answer(
         """
@@ -25,52 +33,61 @@ Your AI-Powered Crypto Trading Assistant
 
 Available Tools:
 
-🚀 AI Playbook Generator
+🚀 Playbook Generator
 🛡 Risk Manager
 📊 Trade Review
 📈 Chart Analysis
 
-Select a tool below:
+Select a tool below.
 """,
-        reply_markup=kb.as_markup()
+        reply_markup=menu
     )
 
 
-@router.callback_query(lambda c: c.data == "playbook")
-async def playbook_callback(callback: CallbackQuery):
-
-    await callback.message.answer(
-        "🚀 Send your trading strategy.\n\nExample:\nscalping ETH on 5m timeframe"
+@router.message(lambda message: message.text == "🚀 Playbook")
+async def playbook_help(message: Message):
+    await message.answer(
+        "🚀 Send any trading strategy.\n\nExample:\nscalping ETH on 5m timeframe"
     )
 
-    await callback.answer()
 
-
-@router.callback_query(lambda c: c.data == "risk")
-async def risk_callback(callback: CallbackQuery):
-
-    await callback.message.answer(
-        "🛡 Risk Manager\n\nUsage:\n/risk 1000 2\n\nExample:\n/risk 1000 2"
+@router.message(lambda message: message.text == "🛡 Risk")
+async def risk_help(message: Message):
+    await message.answer(
+        "🛡 Usage:\n/risk 1000 2\n\nExample:\n/risk 1000 2"
     )
 
-    await callback.answer()
 
-
-@router.callback_query(lambda c: c.data == "review")
-async def review_callback(callback: CallbackQuery):
-
-    await callback.message.answer(
-        "📊 Trade Review\n\nUsage:\n/review\n\nEntry: 108000\nExit: 109500\nSL: 107500\nReason: ETH breakout"
+@router.message(lambda message: message.text == "📊 Review")
+async def review_help(message: Message):
+    await message.answer(
+        "📊 Usage:\n/review\n\nEntry: 108000\nExit: 109500\nSL: 107500\nReason: ETH breakout"
     )
 
-    await callback.answer()
 
-
-@router.callback_query(lambda c: c.data == "chart")
-async def chart_callback(callback: CallbackQuery):
-
-    await callback.message.answer(
-        "📈 Chart Analysis\n\nSend market details.\n\nExample:\nBTC 1H\nPrice above EMA200\nRSI 68\nResistance 108000"
+@router.message(lambda message: message.text == "📈 Chart")
+async def chart_help(message: Message):
+    await message.answer(
+        "📈 Usage:\n/chart\nBTC 1H\nPrice above EMA200\nRSI 68\nResistance 108000"
     )
 
-    await callback.answer()
+
+@router.message(lambda message: message.text == "ℹ️ Help")
+async def help_command(message: Message):
+    await message.answer(
+        """
+🦾 BitClaw AI Commands
+
+🚀 Playbook
+Generate AI trading strategies
+
+🛡 Risk
+Calculate risk per trade
+
+📊 Review
+Review completed trades
+
+📈 Chart
+Analyze chart setups
+"""
+    )
